@@ -1,3 +1,7 @@
+2003-09-25  IKEBE Tomohiro  <ikebe@edge.co.jp>
+
+	* modified equinox algorithm (based on Ruby's holiday.rb)
+
 2003-09-16  IKEBE Tomohiro  <ikebe@edge.co.jp>
 
 	* Date::Japanese::Holiday is-a Date::Simple.

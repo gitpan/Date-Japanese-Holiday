@@ -8,7 +8,7 @@ use vars qw($VERSION @EXPORT_OK);
 use base qw(Date::Simple Exporter);
 @EXPORT_OK = qw(is_japanese_holiday);
 
-$VERSION = '0.03';
+$VERSION = '0.04';
 
 # Too many magic numbers..
 use vars qw(%FIXED_HOLIDAY_TABLE);
@@ -69,8 +69,8 @@ sub is_special_holiday {
 sub is_fixed_holiday {
     my $self = shift;
     my $dstr = sprintf("%02d-%02d", $self->month, $self->day);
-    return 1 if $dstr eq $self->vernal_equinox;
-    return 1 if $dstr eq $self->autumnal_equinox;
+    return 1 if $self->julian_day == $self->vernal_equinox;
+    return 1 if $self->julian_day == $self->autumnal_equinox;
     return undef unless $FIXED_HOLIDAY_TABLE{$dstr};
     my $jd = $self->julian_day;
     my @range = @{$FIXED_HOLIDAY_TABLE{$dstr}};
@@ -111,16 +111,42 @@ sub julian_day {
     return Time::JulianDay::julian_day($self->year, $self->month, $self->day);
 }
 
+sub _deq {
+    my($self, $a, $b) = @_;
+    my $y = $self->year;
+    my $d = int($a + 0.242194 * ($y - 1980) - int(($y - $b) / 4));
+    return $d;
+}
+
 sub vernal_equinox {
     my $self = shift;
-    my $d = int( 20.8431 + 0.242194 * ($self->year - 1980) - int(($self->year - 1980) / 4) );
-    return sprintf("%02d-%02d", 3, $d)
+    my $y = $self->year;
+    my($a, $b);
+    if ($y >= 1900 && $y <= 1979) {
+	$a = 20.8357; $b = 1983.0;
+    }
+    if ($y >= 1980 && $y <= 2099) {
+	$a = 20.8431; $b = 1980.0;
+    }
+    if ($y >= 2100 && $y <= 2150) {
+	$a = 21.8510; $b = 1980.0;
+    }
+    return Time::JulianDay::julian_day($y, 3, $self->_deq($a, $b));
 }
 
 sub autumnal_equinox {
     my $self = shift;
-    my $d = int(23.2488 + 0.242194 * ($self->year - 1980) - int(($self->year - 1980) / 4));
-    return sprintf("%02d-%02d", 9, $d)
+    my $y = $self->year;
+    if ($y >= 1900 && $y <= 1979) {
+	$a = 23.2588; $b = 1983.0;
+    }
+    if ($y >= 1980 && $y <= 2099) {
+	$a = 23.2488; $b = 1980.0;
+    }
+    if ($y >= 2100 && $y <= 2150) {
+	$a = 24.2488; $b = 1980.0;
+    }
+    return Time::JulianDay::julian_day($y, 9, $self->_deq($a, $b));
 }
 
 # functional interface

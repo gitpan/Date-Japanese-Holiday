@@ -6,5 +6,6 @@ WriteMakefile(
 	Test::More => 0.32,
         Time::JulianDay => 0.01,
 	Date::Calc => 5.3,
+	Date::Simple => 1.03,
     },
 );

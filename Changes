@@ -1,3 +1,10 @@
+2003-09-16  IKEBE Tomohiro  <ikebe@edge.co.jp>
+
+	* Date::Japanese::Holiday is-a Date::Simple.
+	* includes Sunday, substitute holiday and special holiday.
+	* some internal method names are changed.
+	* added functional interface.
+
 2002-12-05  IKEBE Tomohiro  <ikebe@edge.co.jp>
 
 	* 0.01 original version

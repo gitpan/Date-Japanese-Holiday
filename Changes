@@ -1,4 +1,4 @@
-Revision history for Perl extension Date::Japanese::Holiday
+2002-12-05  IKEBE Tomohiro  <ikebe@edge.co.jp>
 
-0.01  Wed Nov 27 17:22:28 2002
-	- original version
+	* 0.01 original version
+	* 0.02 fixed Happy Monday calculation.

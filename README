@@ -1,0 +1,26 @@
+NAME
+    Date::Japanese::Holiday - Calculate Japanese Holiday.
+
+SYNOPSIS
+      use Date::Japanese::Holiday;
+
+      if(Date::Japanese::Holiday->new(2002, 2, 11)->is_holiday) {
+           # ...
+      }
+
+DESCRIPTION
+    Date::Japanese::Holiday calculates Japanese Holiday. this module
+    supports from 1948-04-20 to now.
+
+    is_holiday method return true value when the day is Holiday. the Holiday
+    does not Include Sunday, Change Holiday.
+
+AUTHOR
+    IKEBE Tomohiro <ikebe@edge.co.jp>
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+SEE ALSO
+    the Date::Calc manpage the Time::JulianDay manpage
+

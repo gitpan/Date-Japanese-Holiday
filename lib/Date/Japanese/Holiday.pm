@@ -4,7 +4,7 @@ use strict;
 use Time::JulianDay qw(julian_day);
 use Date::Calc ();
 use vars qw($VERSION);
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 # Too many magic numbers..
 use vars qw(%FIXED_HOLIDAY_TABLE);
@@ -80,13 +80,13 @@ sub is_fixed_holiday {
 sub is_happy_monday_holiday {
     my $self = shift;
     # the 2nd Monday of January
-    return 1 if $self->ymd_equal(Date::Calc::Nth_Weekday_of_Month_Year($self->{year}, 1, 1, 2));
+    return 1 if $self->ymd_equal(Date::Calc::Nth_Weekday_of_Month_Year($self->{year}, 1, 1, 2)) && $self->{year} >= 2000;
     # the 3rd Monday of July
-    return 1 if $self->ymd_equal(Date::Calc::Nth_Weekday_of_Month_Year($self->{year}, 7, 1, 3));
+    return 1 if $self->ymd_equal(Date::Calc::Nth_Weekday_of_Month_Year($self->{year}, 7, 1, 3)) && $self->{year} >= 2003;
     # the 3rd Monday of September
-    return 1 if $self->ymd_equal(Date::Calc::Nth_Weekday_of_Month_Year($self->{year}, 9, 1, 3));
+    return 1 if $self->ymd_equal(Date::Calc::Nth_Weekday_of_Month_Year($self->{year}, 9, 1, 3)) && $self->{year} >= 2003;
     # the 2nd Monday of October
-    return 1 if $self->ymd_equal(Date::Calc::Nth_Weekday_of_Month_Year($self->{year}, 10, 1, 2));
+    return 1 if $self->ymd_equal(Date::Calc::Nth_Weekday_of_Month_Year($self->{year}, 10, 1, 2)) && $self->{year} >= 2000;
     return undef;
 }
 

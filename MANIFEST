@@ -11,3 +11,4 @@ t/04_function.t
 t/05_change.t
 t/06_between.t
 t/07_special.t
+t/08_simple.t

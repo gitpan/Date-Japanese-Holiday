@@ -8,7 +8,7 @@ use vars qw($VERSION @EXPORT_OK);
 use base qw(Date::Simple Exporter);
 @EXPORT_OK = qw(is_japanese_holiday);
 
-$VERSION = '0.04';
+$VERSION = '0.05';
 
 # Too many magic numbers..
 use vars qw(%FIXED_HOLIDAY_TABLE);
@@ -28,39 +28,39 @@ use constant FIRST_DAY => 2432753;
     '12-23' => [2447575, 0],
 );
 
-sub is_holiday {
+sub Date::Simple::is_holiday {
     my $self = shift;
     return 
-	$self->day_of_week == 7 || $self->is_basic_holiday || 
-	    $self->is_change_holiday || $self->is_between_holiday || 
-		$self->is_special_holiday;
+	day_of_week($self) == 7 || is_basic_holiday($self) ||
+	    is_change_holiday($self) || is_between_holiday($self) ||
+		is_special_holiday($self);
 }
 
 sub is_basic_holiday {
     my $self = shift;
-    return $self->is_fixed_holiday || $self->is_float_holiday || undef;
+    return is_fixed_holiday($self) || is_float_holiday($self) || undef;
 }
 
 sub is_change_holiday {
     my $self = shift;
     my $prev = $self->prev;
-    return $self->julian_day >= 2441785 && 
-	$prev->is_basic_holiday && $prev->day_of_week == 7;
+        return julian_day($self) >= 2441785 && 
+	is_basic_holiday($prev) && day_of_week($prev) == 7;
 }
 
 sub is_between_holiday {
     my $self = shift;
     my $next = $self->next;
     my $prev = $self->prev;
-    $self->julian_day >= 2446427 &&
-	$self->day_of_week != 7 &&
-	    !$self->is_change_holiday &&
-		$prev->is_basic_holiday && $next->is_basic_holiday;
+    julian_day($self) >= 2446427 &&
+	day_of_week($self) != 7 &&
+	    !is_change_holiday($self) &&
+		is_basic_holiday($prev) && is_basic_holiday($next);
 }
 
 sub is_special_holiday {
     my $self = shift;
-    my $jd = $self->julian_day;
+    my $jd = julian_day($self);
     my $str = sprintf("%04d-%02d-%02d", $self->year, $self->month, $self->day);
     return $str eq "1989-02-24" || $str eq "1990-11-12" || 
 	$str eq "1993-06-09";
@@ -69,10 +69,10 @@ sub is_special_holiday {
 sub is_fixed_holiday {
     my $self = shift;
     my $dstr = sprintf("%02d-%02d", $self->month, $self->day);
-    return 1 if $self->julian_day == $self->vernal_equinox;
-    return 1 if $self->julian_day == $self->autumnal_equinox;
+    return 1 if julian_day($self) == vernal_equinox($self);
+    return 1 if julian_day($self) == autumnal_equinox($self);
     return undef unless $FIXED_HOLIDAY_TABLE{$dstr};
-    my $jd = $self->julian_day;
+    my $jd = julian_day($self);
     my @range = @{$FIXED_HOLIDAY_TABLE{$dstr}};
     if ($jd > $range[0] && (!$range[1] || $jd < $range[1])) {
 	return 1;
@@ -82,16 +82,16 @@ sub is_fixed_holiday {
 
 sub is_float_holiday {
     my $self = shift;
-    my $jd = $self->julian_day;
+    my $jd = julian_day($self);
     return 
     ($self->month == 1 && 
-	 $self->is_nth_wday(2, 1) && $jd >= 2451545) ||
+	 is_nth_wday($self, 2, 1) && $jd >= 2451545) ||
     ($self->month == 7 && 
-	 $self->is_nth_wday(3, 1) && $jd >= 2452641) ||
+	 is_nth_wday($self, 3, 1) && $jd >= 2452641) ||
     ($self->month == 9 && 
-	 $self->is_nth_wday(3, 1) && $jd >= 2452641) ||
+	 is_nth_wday($self, 3, 1) && $jd >= 2452641) ||
     ($self->month == 10 && 
-	 $self->is_nth_wday(2, 1) && $jd >= 2451545);
+	 is_nth_wday($self, 2, 1) && $jd >= 2451545);
 }
 
 sub day_of_week {
@@ -131,7 +131,7 @@ sub vernal_equinox {
     if ($y >= 2100 && $y <= 2150) {
 	$a = 21.8510; $b = 1980.0;
     }
-    return Time::JulianDay::julian_day($y, 3, $self->_deq($a, $b));
+    return Time::JulianDay::julian_day($y, 3, _deq($self, $a, $b));
 }
 
 sub autumnal_equinox {
@@ -146,7 +146,7 @@ sub autumnal_equinox {
     if ($y >= 2100 && $y <= 2150) {
 	$a = 24.2488; $b = 1980.0;
     }
-    return Time::JulianDay::julian_day($y, 9, $self->_deq($a, $b));
+    return Time::JulianDay::julian_day($y, 9, _deq($self, $a, $b));
 }
 
 # functional interface
@@ -168,7 +168,14 @@ Date::Japanese::Holiday - Calculate Japanese Holiday.
   # OO interface
   use Date::Japanese::Holiday;
 
-  if(Date::Japanese::Holiday->new(2002, 2, 11)->is_holiday) {
+  # it adds is_holiday also to Date::Simple namespace
+  my $date = Date::Simple->new(2002, 2, 11);
+  if ($date->is_holiday) {
+       # blah, blah
+  }
+
+  # Date::Japanese::Holiday is-a Date::Simple
+  if (Date::Japanese::Holiday->new(2002, 2, 11)->is_holiday) {
        # ...
   }
 
@@ -182,8 +189,12 @@ Date::Japanese::Holiday - Calculate Japanese Holiday.
 
 =head1 DESCRIPTION
 
-Date::Japanese::Holiday is-a L<Date::Simple>, and calculates Japanese Holiday.
-this module supports from 1948-04-20 to now.
+This module adds C<is_holiday> method to Date::Simple, which
+calcualtes Japanese holiday. This module supports from 1948-04-20 to
+now.
+
+Date::Japanese::Holiday itself is-a Date::Simple, so you can call this
+method also on Date::Japanese::Holiday object, if you like.
 
 is_holiday method return true value when the day is Holiday.
 
